@@ -1,0 +1,60 @@
+import java.net.URL
+import java.util.zip.ZipInputStream
+
+// 工具方法：下载并解压 ZIP
+def downloadAndUnzip(String taskName, String downloadUrl, String outputDirPath) {
+    tasks.register(taskName) {
+        doLast {
+            def zipFile = file("${buildDir}/tmp/${taskName}.zip")
+            def outputDir = file(outputDirPath)
+
+            if (!outputDir.exists()) {
+                outputDir.mkdirs()
+            }
+
+            // 下载 ZIP
+            if (!zipFile.exists()) {
+                println "Downloading $downloadUrl ..."
+                new URL(downloadUrl).withInputStream { i ->
+                    zipFile.withOutputStream { it << i }
+                }
+                println "Downloaded to ${zipFile}"
+            }
+
+            // 解压 ZIP
+            println "Unzipping to ${outputDir} ..."
+            new ZipInputStream(new FileInputStream(zipFile)).withCloseable { zin ->
+                def entry
+                while ((entry = zin.nextEntry) != null) {
+                    def outFile = new File(outputDir, entry.name)
+                    if (entry.isDirectory()) {
+                        outFile.mkdirs()
+                    } else {
+                        outFile.parentFile.mkdirs()
+                        outFile.withOutputStream { out ->
+                            out << zin
+                        }
+                    }
+                }
+            }
+            println "Unzipped ${taskName} to ${outputDir}"
+        }
+    }
+}
+
+// 任务 1: 下载 JNI so 库
+downloadAndUnzip(
+        "downloadAndUnzipSo",
+        "https://roboland-ai.oss-cn-shenzhen.aliyuncs.com/test/ros2/arm64-v8a.zip",          // 替换为你的 so 库 zip 地址
+        "${projectDir}/src/main/jniLibs/arm64-v8a" // 解压到 jniLibs/arm64-v8a
+)
+
+// 任务 2: 下载 Java 库
+downloadAndUnzip(
+        "downloadAndUnzipLibs",
+        "https://roboland-ai.oss-cn-shenzhen.aliyuncs.com/test/ros2/libs.zip",       // 替换为你的 jar/aar zip 地址
+        "${projectDir}/libs"                       // 解压到 libs
+)
+
+// 在构建前执行两个任务
+preBuild.dependsOn("downloadAndUnzipSo", "downloadAndUnzipLibs")
