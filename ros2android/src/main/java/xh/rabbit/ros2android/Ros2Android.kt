@@ -7,9 +7,16 @@ object Ros2Android {
         System.loadLibrary("ros2android")
     }
 
-    external fun hello()
+    const val DEFAULT_RMW = "rmw_fastrtps_cpp"
+    const val DEFAULT_DOMAIN_ID = "0"
 
-    fun initRCLJava() {
+    fun initialize(domainId: String = DEFAULT_DOMAIN_ID, rwt: String = DEFAULT_RMW) {
+        System.setProperty("ROS_DOMAIN_ID", domainId)
+        System.setProperty("RMW_IMPLEMENTATION", rwt);
+
         RCLJava.rclJavaInit();
     }
+
+    external fun hello()
+
 }
