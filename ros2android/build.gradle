@@ -4,6 +4,7 @@ plugins {
 }
 
 apply from: 'download.gradle'
+apply from: 'publish.gradle'
 
 android {
     namespace 'xh.rabbit.ros2android'
