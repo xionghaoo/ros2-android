@@ -12,3 +12,4 @@
 
 - diagnostic_msgs_messages.jar
 - example_interfaces_messages.jar
+- slf4j-api-1.7.21.jar

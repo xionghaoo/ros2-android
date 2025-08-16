@@ -11,7 +11,7 @@ afterEvaluate {
                 // You can then customize attributes of the publication as shown below.
                 groupId = 'xh.rabbit.ros2'
                 artifactId = 'ros2android'
-                version = '1.0.0'
+                version = '1.0.4'
             }
         }
     }
